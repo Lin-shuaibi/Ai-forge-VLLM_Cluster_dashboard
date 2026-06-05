@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      platforms:
+        - linux/amd64
+    container_name: vllm-dashboard-backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./data:/app/data
+      - /data:/data
+    environment:
+      - TZ=Asia/Shanghai
+    restart: unless-stopped
+    networks:
+      - vllm-net
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      platforms:
+        - linux/amd64
+    container_name: vllm-dashboard-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+    networks:
+      - vllm-net
+
+networks:
+  vllm-net:
+    driver: bridge
